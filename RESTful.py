@@ -1,11 +1,24 @@
 #!flask/bin/python
-from flask import Flask, abort, jsonify, make_response, request, url_for
+import os
+
+import subprocess
+
+from flask import Flask, abort, jsonify, make_response, request, url_for, redirect, send_from_directory
 
 from flask.ext.httpauth import HTTPBasicAuth
 
 auth = HTTPBasicAuth()
 
+from werkzeug import secure_filename
+
+UPLOAD_FOLDER = '/home/hrono/projects/RESTful/uploads'
+ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif' , 'xml'])
+
 app = Flask(__name__)
+
+app.config['MAX_CONTENT_LENGTH'] = 200 * 1024 * 1024 # limit 200mb
+
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 tasks = [
     {
@@ -109,13 +122,49 @@ def make_public_task(task):
 
 @auth.get_password
 def get_password(username):
-    if username == 'miguel':
-        return 'python'
+    if username == '1':
+        return '2'
     return None
 
 @auth.error_handler
 def unauthorized():
     return make_response(jsonify({'error': 'Unauthorized access'}), 401)
+
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
+
+@app.route('/todo/api/v1.0/upload/', methods=['GET', 'POST'])
+@auth.login_required
+def upload_file():
+    if request.method == 'POST':
+        file = request.files['file']
+        # print("filename=", file)
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            return url_for('uploaded_file', filename=filename, _external=True)
+    return '''
+<!doctype html>
+<title>Загрузить новый файл</title>
+<h1>Загрузить новый файл</h1>
+<form action="" method=post enctype=multipart/form-data>
+  <p><input type=file name=file>
+    <input type=submit value="Загрузить">
+</form>
+
+'''
+
+
+@app.route('/uploads/<filename>')
+def uploaded_file(filename):
+    # tmp = send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+    print ("NAme file",filename)
+    pwd = "/home/hrono/projects/RESTful"
+    proc = subprocess.Popen("perl %s/tools/generate_slm.pl  %s/uploads/%s" % (pwd,pwd,filename) ,  shell=True, stdout= subprocess.PIPE)
+    out = proc.stdout.readlines()
+    print ("Status",out)
+    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
 if __name__ == '__main__':
     app.run(debug=True)

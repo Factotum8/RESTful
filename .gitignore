@@ -1,0 +1,13 @@
+.idea*
+/static/*
+/templates/*
+/tools/*
+!/uploads/
+/uploads/*
+*.txt
+*.pdf
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.xml
