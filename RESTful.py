@@ -1,4 +1,6 @@
-#!flask/bin/python
+#!flask/bin/env python
+# -*- coding: utf-8 -*-
+
 import os
 
 import subprocess
@@ -161,6 +163,7 @@ def uploaded_file(filename):
     # tmp = send_from_directory(app.config['UPLOAD_FOLDER'], filename)
     print ("NAme file",filename)
     pwd = "/home/hrono/projects/RESTful"
+    print ("pwd=",pwd,filename,sep="",end="\n")
     proc = subprocess.Popen("perl %s/tools/generate_slm.pl  %s/uploads/%s" % (pwd,pwd,filename) ,  shell=True, stdout= subprocess.PIPE)
     out = proc.stdout.readlines()
     print ("Status",out)
