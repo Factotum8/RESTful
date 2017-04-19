@@ -1,9 +1,9 @@
 .idea*
-/static/*
-/templates/*
-/tools/*
-/uploads/*
-/output/*
+static/
+templates/
+tools/
+uploads/
+output/
 *.txt
 *.pdf
 *.png

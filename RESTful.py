@@ -4,6 +4,7 @@
 import os
 
 import subprocess
+from os.path import devnull
 
 from flask import Flask, abort, jsonify, make_response, request, url_for, redirect, send_from_directory
 
@@ -14,6 +15,7 @@ auth = HTTPBasicAuth()
 from werkzeug import secure_filename
 
 UPLOAD_FOLDER = '/home/hrono/projects/RESTful/uploads'
+OUTPUT_FOLDER = '/home/hrono/projects/RESTful/tools'
 ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif' , 'xml'])
 
 app = Flask(__name__)
@@ -144,8 +146,13 @@ def upload_file():
         # print("filename=", file)
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
-            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            return url_for('uploaded_file', filename=filename, _external=True)
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename)) # save file to  'UPLOAD_FOLDER'
+            # if uploaded_file(filename):
+            #     abort(500)
+            print ("Funct=",uploaded_file(filename))
+            # return url_for("/home/hrono/projects/RESTful/tools/result.slm.xml")
+            # return url_for("/home/hrono/projects/RESTful/tools/result.slm.xml", _external=True)
+            return redirect(url_for('uploaded_file', filename='result.slm.xml'))
     return '''
 <!doctype html>
 <title>Загрузить новый файл</title>
@@ -160,14 +167,16 @@ def upload_file():
 
 @app.route('/uploads/<filename>')
 def uploaded_file(filename):
-    # tmp = send_from_directory(app.config['UPLOAD_FOLDER'], filename)
     print ("NAme file",filename)
     pwd = "/home/hrono/projects/RESTful"
+    # fError = open(pwd+'error.log', 'w')
     print ("perl %s/tools/generate_slm.pl  %s/uploads/%s %s/result.slm.xml" % (pwd, pwd, filename,OUTPUT_FOLDER))
     proc = subprocess.Popen("perl %s/tools/generate_slm.pl  %s/uploads/%s %s/result.slm.xml" % (pwd, pwd, filename,OUTPUT_FOLDER), shell=True, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
     out = proc.stdout.readlines()
-    print ("Status",out)
-    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+    print ("OUT=",out)
+    # fError.close()
+    return send_from_directory(OUTPUT_FOLDER, 'result.slm.xml')
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    # app.run(debug=True)
+    app.run(host= '0.0.0.0')
