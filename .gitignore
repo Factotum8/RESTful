@@ -2,8 +2,8 @@
 /static/*
 /templates/*
 /tools/*
-!/uploads/
 /uploads/*
+/output/*
 *.txt
 *.pdf
 *.png

@@ -163,8 +163,8 @@ def uploaded_file(filename):
     # tmp = send_from_directory(app.config['UPLOAD_FOLDER'], filename)
     print ("NAme file",filename)
     pwd = "/home/hrono/projects/RESTful"
-    print ("pwd=",pwd,filename,sep="",end="\n")
-    proc = subprocess.Popen("perl %s/tools/generate_slm.pl  %s/uploads/%s" % (pwd,pwd,filename) ,  shell=True, stdout= subprocess.PIPE)
+    print ("perl %s/tools/generate_slm.pl  %s/uploads/%s %s/result.slm.xml" % (pwd, pwd, filename,OUTPUT_FOLDER))
+    proc = subprocess.Popen("perl %s/tools/generate_slm.pl  %s/uploads/%s %s/result.slm.xml" % (pwd, pwd, filename,OUTPUT_FOLDER), shell=True, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
     out = proc.stdout.readlines()
     print ("Status",out)
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
